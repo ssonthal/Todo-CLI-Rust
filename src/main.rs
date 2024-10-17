@@ -1,5 +1,6 @@
 // to-do cli tool 
 use std::io;
+use colored::*;
 
 static mut ALL_TASKS:Vec<Task> = Vec::new();
 
@@ -44,12 +45,12 @@ unsafe fn update_task(id : u32, description: &str){
 }
 
 fn print_introduction(){
-    println!("1 -> add a new task");
-    println!("2 -> modify an existing task");
-    println!("3 -> mark as task as completed");
-    println!("4 -> remove a task");
-    println!("5 -> Print all tasks");
-    println!("6 -> Exit");
+    println!("{}","1 -> add a new task".green());
+    println!("{}", "2 -> modify an existing task".green());
+    println!("{}", "3 -> mark as task as completed".green());
+    println!("{}", "4 -> remove a task".green());
+    println!("{}", "5 -> Print all tasks".green());
+    println!("{}", "6 -> Exit".green());
 }
 
 unsafe fn take_task_id_input() -> Result<u32, i32> {
@@ -59,14 +60,14 @@ unsafe fn take_task_id_input() -> Result<u32, i32> {
     io::stdin().read_line(&mut id_str).expect("Error reading line");
     let id:u32 = id_str.trim().parse().expect("ID should be a number.");
     if id > ALL_TASKS.len().try_into().unwrap()  {
-        println!("Plase enter a valid ID");
+        println!("{}", "Plase enter a valid ID".red());
         return Err(-1);
     }
     return Ok(id);
 }
 
 unsafe fn take_description_input() -> Result<String, i32> {
-    println!("Please enter a description for the task: \n");
+    println!("{}", "Please enter a description for the task: \n".blue());
     let mut description = String::new();
     io::stdin().read_line(&mut description).expect("Error reading input");
     let description:String = description.trim().to_string();
@@ -86,13 +87,29 @@ unsafe fn complete_task(id: u32) -> Result<u32, i32> {
 
 
 fn main() {
-    println!("Welcome to your To-do CLI application!!!");
+    println!("{}", "Welcome to your To-do CLI application!!!".yellow().bold().italic());
     loop{
         print_introduction();
-        let mut choice = String::new();
-        io::stdin().read_line(&mut choice).expect("Error reading input");
-        let choice:u32 = choice.trim().parse().expect("Entry should be a number");
-
+        let mut choice_str = String::new();
+        io::stdin().read_line(&mut choice_str).expect("Error reading input");
+        let mut choice: u32 = 0; 
+        let choice_str = choice_str.trim();
+        match choice_str.parse() {
+            Ok(val) => {
+                choice = val;
+            },
+            Err(e) => match e.kind() {
+                ParseIntError=> {
+                    println!("{}", "Please enter a valid command (integer)\n".red());
+                    continue;
+                },
+                _ => 
+                {
+                    println!("Input failed with reason {}", e);
+                    break;
+                }
+            }
+        };
         match choice {
             1 => unsafe {
                 let description = take_description_input().unwrap();
