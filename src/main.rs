@@ -3,7 +3,7 @@ use std::io;
 
 static mut ALL_TASKS:Vec<Task> = Vec::new();
 
-#[derive(Debug)]
+
 struct Task {
     id: u32,
     description: String, 
